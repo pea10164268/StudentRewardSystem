@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AddTeacher extends StatefulWidget {
@@ -14,6 +15,20 @@ class _AddTeacherState extends State<AddTeacher> {
   final TextEditingController lNameController = TextEditingController();
   final TextEditingController classController = TextEditingController();
 
+  CollectionReference teachers =
+      FirebaseFirestore.instance.collection('teachers');
+
+  Future<void> addTeacher() {
+    return teachers
+        .add({
+          'first_name': fNameController.text,
+          'last_name': lNameController.text,
+          'class': classController.text
+        })
+        .then((value) => print("Teacher Added"))
+        .catchError((error) => print("Failed to add teacher: $error"));
+  }
+
   @override
   void dispose() {
     fNameController.dispose();
@@ -26,12 +41,14 @@ class _AddTeacherState extends State<AddTeacher> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: const Text('Add Teacher',
               style: TextStyle(
                 fontSize: 30,
               )),
           centerTitle: true,
+          elevation: 0.0,
         ),
         body: Center(
           child: Container(
@@ -45,10 +62,8 @@ class _AddTeacherState extends State<AddTeacher> {
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: fNameController,
-                        autocorrect: true,
-                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                            hintText: 'First Name',
+                            hintText: 'First Name*',
                             hintStyle: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black),
@@ -65,10 +80,8 @@ class _AddTeacherState extends State<AddTeacher> {
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: lNameController,
-                        autocorrect: true,
-                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                            hintText: 'Last Name',
+                            hintText: 'Last Name*',
                             hintStyle: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black),
@@ -85,10 +98,8 @@ class _AddTeacherState extends State<AddTeacher> {
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: classController,
-                        autocorrect: true,
-                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                            hintText: 'Class ID',
+                            hintText: 'Class ID*',
                             hintStyle: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black),
@@ -106,8 +117,9 @@ class _AddTeacherState extends State<AddTeacher> {
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
+                            addTeacher();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Processing')),
+                              const SnackBar(content: Text('Teacher Added!')),
                             );
                           }
                         },
@@ -119,7 +131,7 @@ class _AddTeacherState extends State<AddTeacher> {
                         ),
                         style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 20),
+                                horizontal: 20, vertical: 10),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0))),
                       ),

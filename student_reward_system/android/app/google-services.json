@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "714039376752",
+    "project_id": "rewardsystem-4a36e",
+    "storage_bucket": "rewardsystem-4a36e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714039376752:android:5abd85e2527a06795fadb5",
+        "android_client_info": {
+          "package_name": "com.example.student_reward_system"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "714039376752-hf714t9vieb432li378sd80vm55vcdvi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIgwsLj1BXTZbNcnFUkUH4zbuJn1wqX1Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "714039376752-hf714t9vieb432li378sd80vm55vcdvi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

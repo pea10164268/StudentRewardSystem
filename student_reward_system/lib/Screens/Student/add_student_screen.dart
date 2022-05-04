@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AddStudent extends StatefulWidget {
@@ -14,6 +15,20 @@ class _AddStudentState extends State<AddStudent> {
 
   final _formKey = GlobalKey<FormState>();
 
+  CollectionReference students =
+      FirebaseFirestore.instance.collection('students');
+
+  Future<void> addStudent() {
+    return students
+        .add({
+          'first_name': fNameController.text,
+          'last_name': lNameController.text,
+          'class': classController.text
+        })
+        .then((value) => print("Student Added"))
+        .catchError((error) => print("Failed to add student: $error"));
+  }
+
   @override
   void dispose() {
     fNameController.dispose();
@@ -26,12 +41,14 @@ class _AddStudentState extends State<AddStudent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: const Text('Add Student',
               style: TextStyle(
                 fontSize: 30,
               )),
           centerTitle: true,
+          elevation: 0.0,
         ),
         body: ListView(children: [
           Container(
@@ -42,8 +59,6 @@ class _AddStudentState extends State<AddStudent> {
                     children: [
                       TextFormField(
                         controller: fNameController,
-                        autocorrect: true,
-                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                             hintText: 'First Name*',
                             hintStyle: const TextStyle(
@@ -62,8 +77,6 @@ class _AddStudentState extends State<AddStudent> {
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: lNameController,
-                        autocorrect: true,
-                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                             hintText: 'Last Name*',
                             hintStyle: const TextStyle(
@@ -82,8 +95,6 @@ class _AddStudentState extends State<AddStudent> {
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: classController,
-                        autocorrect: true,
-                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                             hintText: 'Class ID*',
                             hintStyle: const TextStyle(
@@ -103,10 +114,10 @@ class _AddStudentState extends State<AddStudent> {
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
+                            addStudent();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Processing')),
+                              const SnackBar(content: Text('Student added!')),
                             );
-                            Navigator.pushNamed(context, '/register/success');
                           }
                         },
                         child: const Text(
@@ -117,7 +128,7 @@ class _AddStudentState extends State<AddStudent> {
                         ),
                         style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 20),
+                                horizontal: 20, vertical: 10),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0))),
                       ),

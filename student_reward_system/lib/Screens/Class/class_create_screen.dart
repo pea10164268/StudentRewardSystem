@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class CreateClass extends StatefulWidget {
@@ -15,6 +16,20 @@ class _CreateClassState extends State<CreateClass> {
 
   final _formKey = GlobalKey<FormState>();
 
+  CollectionReference classroom =
+      FirebaseFirestore.instance.collection('classroom');
+
+  Future<void> addClassroom() {
+    return classroom
+        .add({
+          'first_name': classNameController.text,
+          'last_name': classDescriptionController.text,
+          'class': teacherIDController.text
+        })
+        .then((value) => print("Classroom Added"))
+        .catchError((error) => print("Failed to add classroom: $error"));
+  }
+
   @override
   void dispose() {
     classNameController.dispose();
@@ -27,12 +42,14 @@ class _CreateClassState extends State<CreateClass> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: const Text('Add Class',
               style: TextStyle(
                 fontSize: 30,
               )),
           centerTitle: true,
+          elevation: 0.0,
         ),
         body: Center(
             child: Container(
@@ -44,7 +61,6 @@ class _CreateClassState extends State<CreateClass> {
                   child: Column(children: [
                     TextFormField(
                       controller: classNameController,
-                      autocorrect: true,
                       decoration: InputDecoration(
                           hintText: 'Class Name*',
                           hintStyle: const TextStyle(
@@ -62,7 +78,6 @@ class _CreateClassState extends State<CreateClass> {
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: classDescriptionController,
-                      autocorrect: true,
                       minLines: 1,
                       maxLines: 5,
                       keyboardType: TextInputType.multiline,
@@ -83,7 +98,6 @@ class _CreateClassState extends State<CreateClass> {
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: teacherIDController,
-                      autocorrect: true,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                           hintText: 'Teacher ID*',
@@ -103,8 +117,9 @@ class _CreateClassState extends State<CreateClass> {
                     ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
+                          addClassroom();
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Processing')),
+                            const SnackBar(content: Text('Classroom Added!')),
                           );
                         }
                       },
@@ -116,7 +131,7 @@ class _CreateClassState extends State<CreateClass> {
                       ),
                       style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 20),
+                              horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0))),
                     ),

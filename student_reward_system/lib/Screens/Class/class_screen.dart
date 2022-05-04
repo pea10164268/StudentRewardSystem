@@ -41,6 +41,7 @@ class _ClassState extends State<Class> {
                 fontSize: 30,
               )),
           centerTitle: true,
+          elevation: 0.0,
         ),
         body: ListView(
           padding: const EdgeInsets.all(32),

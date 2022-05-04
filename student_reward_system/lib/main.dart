@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:student_reward_system/Screens/User/ForgotPassword.dart';
+import 'package:student_reward_system/Screens/User/profile.dart';
 import 'Screens/Class/class_create_screen.dart';
 import 'Screens/Class/class_screen.dart';
 import 'Screens/Student/add_student_screen.dart';
@@ -10,10 +12,13 @@ import 'Screens/User/login_screen.dart';
 import 'Screens/User/register_screen.dart';
 import 'Screens/User/register_success.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -31,7 +36,7 @@ class MyApp extends StatelessWidget {
         ),
         primarySwatch: Colors.green,
       ),
-      initialRoute: '/teacher',
+      initialRoute: '/class/add',
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
@@ -42,6 +47,8 @@ class MyApp extends StatelessWidget {
         '/teacher/add': (context) => const AddTeacher(),
         '/class': (context) => const Class(),
         '/class/add': (context) => const CreateClass(),
+        '/profile': (context) => const Profile(),
+        '/password/reset': (context) => const ForgotPassword(),
       },
       debugShowCheckedModeBanner: false,
     );

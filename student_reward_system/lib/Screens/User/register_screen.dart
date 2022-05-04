@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '/Screens/User/register_success.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -8,24 +10,17 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  String dropdownValue = 'Select Prefix';
-
-  final TextEditingController fNameController = TextEditingController();
-  final TextEditingController lNameController = TextEditingController();
-  final TextEditingController idNumberController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _conPassword = TextEditingController();
+  final _auth = FirebaseAuth.instance;
 
   @override
   void dispose() {
-    fNameController.dispose();
-    lNameController.dispose();
-    idNumberController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
+    _email.dispose();
+    _password.dispose();
+    _conPassword.dispose();
 
     super.dispose();
   }
@@ -33,12 +28,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: const Text('Sign up',
               style: TextStyle(
                 fontSize: 30,
               )),
           centerTitle: true,
+          elevation: 0.0,
         ),
         body: Center(
             child: Container(
@@ -50,47 +47,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 20),
-                        DropdownButtonFormField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                          ),
-                          isExpanded: true,
-                          value: dropdownValue,
-                          icon: const Icon(Icons.arrow_downward_sharp),
-                          elevation: 16,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              dropdownValue = newValue!;
-                            });
-                          },
-                          items: <String>[
-                            'Select Prefix',
-                            'Mr',
-                            'Mrs',
-                            'Ms',
-                            'Miss',
-                            'Dr',
-                            'Prof'
-                          ].map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 20),
                         TextFormField(
-                          controller: fNameController,
-                          autocorrect: true,
-                          keyboardType: TextInputType.number,
+                          controller: _email,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
-                              hintText: 'First Name',
+                              hintText: 'Email Address*',
                               hintStyle: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black),
@@ -99,58 +60,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               )),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your first name.';
+                              return 'Please enter your Email Address.';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
-                          controller: lNameController,
-                          autocorrect: true,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              hintText: 'Last Name',
-                              hintStyle: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              )),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your last name.';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: idNumberController,
-                          autocorrect: true,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              hintText: 'Teacher ID Number',
-                              hintStyle: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              )),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your ID number.';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: passwordController,
-                          autocorrect: true,
+                          controller: _password,
                           obscureText: true,
                           decoration: InputDecoration(
-                              hintText: 'Password',
+                              hintText: 'Password*',
                               hintStyle: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black),
@@ -166,11 +86,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
-                          controller: confirmPasswordController,
-                          autocorrect: true,
+                          controller: _conPassword,
                           obscureText: true,
                           decoration: InputDecoration(
-                              hintText: 'Confirm Password',
+                              hintText: 'Confirm Password*',
                               hintStyle: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black),
@@ -180,18 +99,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your confirm password.';
+                            } else if (_conPassword.text != _password.text) {
+                              return 'The password and confirmation password do not match.';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Processing')),
-                              );
-                              Navigator.pushNamed(context, '/register/success');
+                              try {
+                                final newUser =
+                                    await _auth.createUserWithEmailAndPassword(
+                                        email: _email.text,
+                                        password: _password.text);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const RegisterSuccess()),
+                                );
+                              } on FirebaseAuthException catch (e) {
+                                if (e.code == 'weak-password') {
+                                  print('The password provided is too weak');
+                                }
+                              }
                             }
                           },
                           child: const Text(
@@ -202,17 +135,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 30, vertical: 20),
+                                  horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20.0))),
                         ),
-                        const SizedBox(height: 20),
-                        TextButton(
-                            onPressed: () {},
-                            child: const Text('Forgot Password?',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold))),
                         const SizedBox(height: 30),
                         const Text('Already have an account?',
                             style: TextStyle(

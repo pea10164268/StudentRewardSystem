@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:student_reward_system/Screens/User/ForgotPassword.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -8,13 +10,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController idNumberController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _auth = FirebaseAuth.instance;
 
   @override
   void dispose() {
-    idNumberController.dispose();
+    emailController.dispose();
     passwordController.dispose();
 
     super.dispose();
@@ -23,12 +26,14 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: const Text('Sign in',
               style: TextStyle(
                 fontSize: 30,
               )),
           centerTitle: true,
+          elevation: 0.0,
         ),
         body: Center(
             child: Container(
@@ -41,10 +46,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         const SizedBox(height: 20),
                         TextFormField(
-                          controller: idNumberController,
-                          keyboardType: TextInputType.number,
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
-                              hintText: 'Teacher ID Number',
+                              hintText: 'Email Address',
                               hintStyle:
                                   const TextStyle(fontWeight: FontWeight.bold),
                               border: OutlineInputBorder(
@@ -52,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               )),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your ID number.';
+                              return 'Please enter your Email Address.';
                             }
                             return null;
                           },
@@ -78,11 +83,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Processing')),
-                              );
+                              try {
+                                UserCredential userCredential =
+                                    await _auth.signInWithEmailAndPassword(
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                );
+                                Navigator.popAndPushNamed(context, '/profile');
+                              } on FirebaseAuthException catch (e) {
+                                if (e.code == 'user-not-found') {
+                                  print('No user found for that email.');
+                                } else if (e.code == 'wrong-password') {
+                                  print(
+                                      'Wrong password provided for that user.');
+                                }
+                              }
                             }
                           },
                           child: const Text(
@@ -93,13 +110,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 30, vertical: 20),
+                                  horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20.0))),
                         ),
                         const SizedBox(height: 20),
                         TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.popAndPushNamed(
+                                  context, '/password/reset');
+                            },
                             child: const Text('Forgot Password?',
                                 style: TextStyle(
                                     fontSize: 18,
